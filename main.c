@@ -107,73 +107,73 @@ int removeHeap(Elem v[], int pos_v[], int m, Elem* px) {
 void atualizaHeap(Elem v[], int pos_v[], Elem x) {
     int pos_x_v = pos_v[x.conteudo]; // pega a posição de x em v
     v[pos_x_v].chave = x.chave; // atualiza a chave de x em v
-    sobeHeap(v, pos_v, pos_x_v); 
+    sobeHeap(v, pos_v, pos_x_v);
 }
 
 // ALGORITMO DE DIJKSTRA
 
-void DijkstraComHeap ( Grafo G , int origem , int destino, double *dist , int *pred ) {
-    int i , * pos_H, v , w , tam_H ;
+void DijkstraComHeap(Grafo G, int origem, int destino, double* dist, int* pred) {
+    int i, * pos_H, v, w, tam_H;
     double custo;
-    Elem * H , elem_aux ;
- 
+    Elem* H, elem_aux;
+
     // inicializando distâncias e predecessores
-    for ( i = 0; i < G->n; i++) {
+    for (i = 0; i < G->n; i++) {
         dist[i] = 29029.2;
         pred[i] = -1;
     }
 
 
-    dist [ origem ] = 0 ;
+    dist[origem] = 0;
 
     // criando um min heap em H com vetor de posições pos_H
-    H = malloc ( G -> n * sizeof( Elem ));
-    pos_H = malloc ( G -> n * sizeof( int ));
-    for ( i = 0 ; i < G -> n ; i ++) {
+    H = malloc(G->n * sizeof(Elem));
+    pos_H = malloc(G->n * sizeof(int));
+    for (i = 0; i < G->n; i++) {
         H[i].chave = dist[i]; // chave é a "distância" do vértice
         H[i].conteudo = i; // conteúdo é o rótulo do vértice
         pos_H[i] = i; // vértice i está na posição i do heap H
     }
 
-    troca (& H [ 0 ], & H [ origem ]); // coloca origem no início do heap H
-    troca_pos (& pos_H [ 0 ], & pos_H [ origem ]); // atualiza posição
-    tam_H = G -> n ;
+    troca(&H[0], &H[origem]); // coloca origem no início do heap H
+    troca_pos(&pos_H[0], &pos_H[origem]); // atualiza posição
+    tam_H = G->n;
 
-    while ( tam_H > 0 ) { // enquanto não visitar todo vértice
- 
+    while (tam_H > 0) { // enquanto não visitar todo vértice
+
         // buscando vértice v que minimiza dist[v]
-        tam_H = removeHeap( H , pos_H , tam_H , & elem_aux );
+        tam_H = removeHeap(H, pos_H, tam_H, &elem_aux);
         v = elem_aux.conteudo;
         if (v == destino) {
             break;
         }
- 
-        // percorrendo lista com vizinhos de v
-        for (i = 0; i < G->n; i++ ) {
 
-            if(G->A[v][i] != 0){
+        // percorrendo lista com vizinhos de v
+        for (i = 0; i < G->n; i++) {
+
+            if (G->A[v][i] != 0) {
                 w = i;
                 custo = G->A[v][i];
 
                 // e atualizando as distâncias e predecessores quando for o caso
-                if ( dist [ w ] > dist [ v ] + custo ) {
-                    dist [ w ] = dist [ v ] + custo ;
-                    pred [ w ] = v ;
-                    elem_aux.chave = dist [ w ];
-                    elem_aux.conteudo = w ;
-                    atualizaHeap( H , pos_H , elem_aux );
+                if (dist[w] > dist[v] + custo) {
+                    dist[w] = dist[v] + custo;
+                    pred[w] = v;
+                    elem_aux.chave = dist[w];
+                    elem_aux.conteudo = w;
+                    atualizaHeap(H, pos_H, elem_aux);
                 }
             }
         }
     }
 
-    free ( H );
-    free ( pos_H );
-} 
+    free(H);
+    free(pos_H);
+}
 
 // FUNÇÃO AUXILIAR
 
-double calculaDistancia(Grafo G, int sala, int *pred) {
+double calculaDistancia(Grafo G, int sala, int* pred) {
     double distancia = 0;
     int verticeAtual = 0;
     int predecessor;
@@ -189,9 +189,9 @@ double calculaDistancia(Grafo G, int sala, int *pred) {
 
 int main() {
 
-	int M /*num salas*/, E/*num corredores*/, N/*num tubulações*/, C/*num consultas*/;
-	int U, V; // salas
-	double D; //comprimento do corredor
+    int M /*num salas*/, E/*num corredores*/, N/*num tubulações*/, C/*num consultas*/;
+    int U, V; // salas
+    double D; //comprimento do corredor
     int S; // sala do impostor
     double* dist;
     int* pred;
@@ -199,7 +199,7 @@ int main() {
     Grafo GrafoTripulante;
     Grafo GrafoImpostor;
 
-	scanf("%d %d %d %d", &M, &E, &N, &C);
+    scanf("%d %d %d %d", &M, &E, &N, &C);
 
     // inicializando os grafos
     GrafoTripulante = inicializaGrafo(E);
@@ -210,16 +210,21 @@ int main() {
     pred = malloc(GrafoTripulante->n * sizeof(int));
 
     // inserindo os arcos referentes aos corredores entre as salas
-	for (int i = 0; i < ((3 * E)/3); i++) {
-		scanf("%d%d%lf", &U, &V, &D);
+    for (int i = 0; i < ((3 * E) / 3); i++) {
+        scanf("%d%d%lf", &U, &V, &D);
         insereArcoGrafo(GrafoTripulante, U, V, D);
         insereArcoGrafo(GrafoImpostor, U, V, D);
-	}
+    }
 
     // inserindo os arcos referentes a tubulação entre as salas no grafo do impostor
     for (int j = 0; j < ((2 * N) / 2); j++) {
         scanf("%d%d", &U, &V);
-        insereTubulacao(GrafoImpostor, U, V);
+        if (GrafoImpostor->A[U][V] == 0) {
+            insereTubulacao(GrafoImpostor, U, V);
+        }
+        else if (GrafoImpostor->A[U][V] != 0 && GrafoImpostor->A[U][V] > 1) {
+            insereTubulacao(GrafoImpostor, U, V);
+        }
     }
 
     // guardando as salas em que o tripulante avista o impostor em ação
@@ -228,7 +233,7 @@ int main() {
         scanf("%d", &S);
         salasImpostor[k] = S;
     }
-    
+
     // operando as consultas
     for (int i = 0; i < C; i++) {
 
@@ -240,7 +245,6 @@ int main() {
         DijkstraComHeap(GrafoImpostor, salasImpostor[i], 0, dist, pred);
 
         double distanciaImpostor = calculaDistancia(GrafoImpostor, salasImpostor[i], pred);
-
 
         if (distanciaTripulante <= distanciaImpostor) {
 
@@ -254,5 +258,5 @@ int main() {
         }
     }
 
-	return 0;
+    return 0;
 }
